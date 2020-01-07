@@ -25,6 +25,22 @@ app.get('/api/users', (req, res) => {
   });
 });
 
+app.post('/api/users', (req, res) => {
+  // send an SQL query to get all users
+  connection.query('INSERT INTO user SET ?', req.body, (err, results) => {
+    if (err) {
+      // If an error has occurred, then the client is informed of the error
+      res.status(500).json({
+        error: err.message,
+        sql: err.sql,
+      });
+    } else {
+      // If everything went well, we send the result of the SQL query as JSON
+      res.json(results);
+    }
+  });
+});
+
 app.listen(process.env.PORT, (err) => {
   if (err) {
     throw new Error('Something bad happened...');
