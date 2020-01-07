@@ -1,9 +1,12 @@
 // dotenv loads parameters (port and database config) from .env
 require('dotenv').config();
 const express = require('express');
+const bodyParser = require('body-parser');
 const connection = require('./db');
 
 const app = express();
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 
 // respond to requests on `/api/users`
 app.get('/api/users', (req, res) => {
