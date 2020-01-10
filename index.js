@@ -26,52 +26,55 @@ app.get('/api/users', (req, res) => {
   });
 });
 
-app.post('/api/users', [
-  // email must be valid
-  check('email').isEmail(),
-  // password must be at least 8 chars long
-  check('password').isLength({ min: 8 }),
-  // let's assume a name should be 2 chars long
-  check('name').isLength({ min: 2 }),
-],
-(req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(422).json({ errors: errors.array() });
-  }
-  // send an SQL query to get all users
-  return connection.query('INSERT INTO user SET ?', req.body, (err, results) => {
-    if (err) {
-      // If an error has occurred, then the client is informed of the error
-      return res.status(500).json({
-        error: err.message,
-        sql: err.sql,
-      });
+app.post(
+  '/api/users',
+  [
+    // email must be valid
+    check('email').isEmail(),
+    // password must be at least 8 chars long
+    check('password').isLength({ min: 8 }),
+    // let's assume a name should be 2 chars long
+    check('name').isLength({ min: 2 }),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
     }
-    // We use the insertId attribute of results to build the WHERE clause
-    return connection.query('SELECT * FROM user WHERE id = ?', results.insertId, (err2, records) => {
-      if (err2) {
+    // send an SQL query to get all users
+    return connection.query('INSERT INTO user SET ?', req.body, (err, results) => {
+      if (err) {
+        // If an error has occurred, then the client is informed of the error
         return res.status(500).json({
-          error: err2.message,
-          sql: err2.sql,
+          error: err.message,
+          sql: err.sql,
         });
       }
-      // If all went well, records is an array, from which we use the 1st item
-      const insertedUser = records[0];
-      // Extract all the fields *but* password as a new object (user)
-      const { password, ...user } = insertedUser;
-      // Get the host + port (localhost:3000) from the request headers
-      const host = req.get('host');
-      // Compute the full location, e.g. http://localhost:3000/api/users/132
-      // This will help the client know where the new resource can be found!
-      const location = `http://${host}${req.url}/${user.id}`;
-      return res
-        .status(201)
-        .set('Location', location)
-        .json(user);
+      // We use the insertId attribute of results to build the WHERE clause
+      return connection.query('SELECT * FROM user WHERE id = ?', results.insertId, (err2, records) => {
+        if (err2) {
+          return res.status(500).json({
+            error: err2.message,
+            sql: err2.sql,
+          });
+        }
+        // If all went well, records is an array, from which we use the 1st item
+        const insertedUser = records[0];
+        // Extract all the fields *but* password as a new object (user)
+        const { password, ...user } = insertedUser;
+        // Get the host + port (localhost:3000) from the request headers
+        const host = req.get('host');
+        // Compute the full location, e.g. http://localhost:3000/api/users/132
+        // This will help the client know where the new resource can be found!
+        const location = `http://${host}${req.url}/${user.id}`;
+        return res
+          .status(201)
+          .set('Location', location)
+          .json(user);
+      });
     });
-  });
-});
+  },
+);
 
 app.listen(process.env.PORT, (err) => {
   if (err) {
