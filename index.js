@@ -26,16 +26,18 @@ app.get('/api/users', (req, res) => {
   });
 });
 
+const userValidationMiddlewares = [
+  // email must be valid
+  check('email').isEmail(),
+  // password must be at least 8 chars long
+  check('password').isLength({ min: 8 }),
+  // let's assume a name should be 2 chars long
+  check('name').isLength({ min: 2 }),
+];
+
 app.post(
   '/api/users',
-  [
-    // email must be valid
-    check('email').isEmail(),
-    // password must be at least 8 chars long
-    check('password').isLength({ min: 8 }),
-    // let's assume a name should be 2 chars long
-    check('name').isLength({ min: 2 }),
-  ],
+  userValidationMiddlewares,
   (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
