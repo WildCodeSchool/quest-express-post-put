@@ -17,7 +17,7 @@ app.get('/api/users', (req, res) => {
       // If an error has occurred, then the client is informed of the error
       res.status(500).json({
         error: err.message,
-        sql: err.sql,
+        sql: err.sql
       });
     } else {
       // If everything went well, we send the result of the SQL query as JSON
@@ -32,7 +32,7 @@ const userValidationMiddlewares = [
   // password must be at least 8 chars long
   check('password').isLength({ min: 8 }),
   // let's assume a name should be 2 chars long
-  check('name').isLength({ min: 2 }),
+  check('name').isLength({ min: 2 })
 ];
 
 app.post(
@@ -49,7 +49,7 @@ app.post(
         // If an error has occurred, then the client is informed of the error
         return res.status(500).json({
           error: err.message,
-          sql: err.sql,
+          sql: err.sql
         });
       }
       // We use the insertId attribute of results to build the WHERE clause
@@ -57,7 +57,7 @@ app.post(
         if (err2) {
           return res.status(500).json({
             error: err2.message,
-            sql: err2.sql,
+            sql: err2.sql
           });
         }
         // If all went well, records is an array, from which we use the 1st item
@@ -75,7 +75,15 @@ app.post(
           .json(user);
       });
     });
-  },
+  }
+);
+
+app.put(
+  '/api/users/:id',
+  userValidationMiddlewares,
+  (req, res) => {
+
+  }
 );
 
 app.listen(process.env.PORT, (err) => {
