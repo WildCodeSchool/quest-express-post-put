@@ -35,6 +35,46 @@ const userValidationMiddlewares = [
   check('name').isLength({ min: 2 }),
 ];
 
+app.put(
+  '/api/users/:id',
+  userValidationMiddlewares,
+  (req, res) => {
+    const errors = validationResult(req);
+    const idUser = req.params.id;
+    const formData = req.body;
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+    // send an SQL query to get all users
+    return connection.query('UPDATE user SET ? WHERE id = ?', [formData, idUser], (err) => {
+      if (err) {
+        // If an error has occurred, then the client is informed of the error
+        return res.status(500).json({
+          error: err.message,
+          sql: err.sql,
+        });
+      }
+      // We use the insertId attribute of results to build the WHERE clause
+      return connection.query('SELECT * FROM user WHERE id = ?', [idUser], (err2, records) => {
+        if (err2) {
+          return res.status(500).json({
+            error: err2.message,
+            sql: err2.sql,
+          });
+        }
+        // If all went well, records is an array, from which we use the 1st item
+        const insertedUser = records[0];
+        // Extract all the fields *but* password as a new object (user)
+        const { password, ...user } = insertedUser;
+        // Get the host + port (localhost:3000) from the request headers
+        return res
+          .status(200)
+          .json(user);
+      });
+    });
+  },
+);
+
 app.post(
   '/api/users',
   userValidationMiddlewares,
