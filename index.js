@@ -99,7 +99,7 @@ app.put(
         });
       }
 
-    return connection.query('SELECT * FROM user WHERE id = ?', results.insertId, (err2, records) => {
+    return connection.query('SELECT * FROM user WHERE id = ?', req.params.id, (err2, records) => {
       if (err2) {
         return res.status(500).json({
           error: err2.message,
@@ -107,8 +107,8 @@ app.put(
         });
       }
 
-      const modifiedUser = records[0];
-      const {password, ...user} = modifiedUser;
+      const updatedUser = records[0];
+      const {password, ...user} = updatedUser;
 
       return res.status(200).json(user);
     })
