@@ -83,7 +83,7 @@ app.put("/api/users/:id", userValidationMiddlewares, (request, response) => {
   return connection.query(
     "UPDATE user SET ? WHERE id=?",
     [request.body, userId],
-    (err) => {
+    (err, results) => {
       if (err) {
         return res.status(500).json({
           error: err.message,
@@ -92,7 +92,7 @@ app.put("/api/users/:id", userValidationMiddlewares, (request, response) => {
       }
       return connection.query(
         "SELECT name, email FROM user WHERE id = ?",
-        insertId,
+        userId,
         (err2, records) => {
           if (err2) {
             return response.status(500).json({
