@@ -45,6 +45,7 @@ app.post(
     }
     // send an SQL query to get all users
     return connection.query('INSERT INTO user SET ?', req.body, (err, results) => {
+      console.log(results)
       if (err) {
         // If an error has occurred, then the client is informed of the error
         return res.status(500).json({
@@ -77,6 +78,46 @@ app.post(
     });
   },
 );
+
+
+app.put('/api/users/:id', userValidationMiddlewares, (req, res) => {
+  const error = validationResult(req)
+  if (!error.isEmpty()) {
+    return res.status(422).json({ errors: error.array() })
+  }
+  return connection.query('UPDATE user set ? where ID = ?', [req.body, req.params.id], (err, results) => {
+    if (err) {
+      return res.status(500).json({
+        error: err.message,
+        sql: err.sql,
+      });
+    }
+    return connection.query('Select * from user where ID = ?', req.params.id, (err2, record) => {
+      console.log(record)
+      if (err2) {
+        return res.status(500).json({
+          error: err2.message,
+          sql: err2.sql,
+        });
+      }
+      const insertedUser = record[0];
+      const { password, ...user } = insertedUser
+
+      const host = req.get('host');
+      const location = `http://${host}${req.url}/${user.id}`;
+      return res
+        .status(200)
+        .set('Location', location)
+        .json(user);
+
+    });
+  })
+}
+)
+
+
+
+
 
 app.listen(process.env.PORT, (err) => {
   if (err) {
