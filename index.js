@@ -24,7 +24,6 @@ app.get('/api/users', (req, res) => {
     }
   });
 });
-
 app.listen(process.env.PORT, (err) => {
   if (err) {
     throw new Error('Something bad happened...');
