@@ -24,7 +24,7 @@ npm install
 Inject the `database/setup-database.sql` file into MySQL with this command (provide your root password when asked to):
 
 ```
-mysql -uroot < database/setup-database.sql
+mysql -uroot -p < database/setup-database.sql
 ```
 
 ## 4. Create and edit the `.env` file
