@@ -30,8 +30,6 @@ app.post(
   '/api/users',
   check('name').isLength({ min: 2 }),
   check('email').isEmail(),
-  // password must be at least 5 chars long
-  check('password').isLength({ min: 5 }),
   (req, res) => {
     // Finds the validation errors in this request and wraps them in an object with handy functions
     const errors = validationResult(req);
@@ -52,7 +50,7 @@ app.post(
           });
         }
         // If everything went well, we send the result of the SQL query as JSON
-        return res.json(results);
+        return res.json(results.insertID);
       },
     );
   },
