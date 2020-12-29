@@ -77,7 +77,7 @@ app.post('/api/users', (req, res) => {
       }
       // If everything went well, we send the result of the SQL query as JSON
       return res.json(results);
-    }
+    },
   );
 });
 
