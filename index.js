@@ -2,7 +2,7 @@
 require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
-const { body, validationResult } = require('express-validator');
+const { check, validationResult } = require('express-validator');
 const connection = require('./db');
 
 const app = express();
@@ -26,24 +26,35 @@ app.get('/api/users', (req, res) => {
   });
 });
 
-const User = '';
 app.post(
   '/api/users',
-  // username must be an email
-  body('username').isEmail(),
+  check('name').isLength({ min: 2 }),
+  check('email').isEmail(),
   // password must be at least 5 chars long
-  body('password').isLength({ min: 5 }),
+  check('password').isLength({ min: 5 }),
   (req, res) => {
     // Finds the validation errors in this request and wraps them in an object with handy functions
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(422).json({ errors: errors.array() });
     }
 
-    User.create({
-      username: req.body.username,
-      password: req.body.password,
-    }).then((user) => res.json(user));
+    // send an SQL query to get all users
+    return connection.query(
+      'INSERT INTO user SET ?',
+      req.body,
+      (err, results) => {
+        if (err) {
+          // If an error has occurred, then the client is informed of the error
+          return res.status(500).json({
+            error: err.message,
+            sql: err.sql,
+          });
+        }
+        // If everything went well, we send the result of the SQL query as JSON
+        return res.json(results);
+      },
+    );
   },
 );
 
