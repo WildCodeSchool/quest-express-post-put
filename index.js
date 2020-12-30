@@ -42,6 +42,13 @@ app.post('/api/users', [
   // send an SQL query to get all users
   return connection.query('INSERT INTO user SET ?', req.body, (err, results) => {
     if (err) {
+      // MySQL reports a duplicate entry -> 409 Conflict
+      if (err.code === 'ER_DUP_ENTRY') {
+        return res.status(409).json({
+          error: 'Email already exists',
+        });
+      }}
+    if (err) {
       // If an error has occurred, then the client is informed of the error
       return res.status(500).json({
         error: err.message,
