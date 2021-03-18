@@ -1,0 +1,12 @@
+put http://localhost:3900/api/users/2
+Content-Type: application/json
+
+{
+    "email": "GINETTE@gmail.com",
+    "password": "UIEOOEOEOEOEOOEj",
+    "name": "DELARUE"
+}
+
+####
+get http://localhost:3900/api/users
+Content-Type: application/json
